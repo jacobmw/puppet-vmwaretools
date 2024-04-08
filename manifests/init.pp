@@ -311,7 +311,7 @@ class vmwaretools (
           notify  => Exec['udevrefresh'],
         }
 
-        if ($::osfamily == 'RedHat') and ($::operatingsystemmajrelease == '5') {
+        if ($facts['os']['family] == 'RedHat') and ($facts['os']['release']['major'] == '5') {
           exec { 'udevrefresh':
             refreshonly => true,
             command     => '/sbin/udevcontrol reload_rules && /sbin/start_udev',
@@ -334,7 +334,7 @@ class vmwaretools (
           notify  => Service[$service_name_real],
         }
 
-        if ($::osfamily == 'RedHat') and ($vmwaretools::params::majdistrelease == '6') and ($rhel_upstart == true) {
+        if ($facts['os']['family'] == 'RedHat') and ($vmwaretools::params::majdistrelease == '6') and ($rhel_upstart == true) {
           # VMware-tools 5.1 on EL6 is now using upstart and not System V init.
           # http://projects.puppetlabs.com/issues/11989#note-7
           service { $service_name_real :
