@@ -118,7 +118,7 @@ class vmwaretools::repo (
 
       # We use $::operatingsystem and not $::osfamily because certain things
       # (like Fedora) need to be excluded.
-      case $::operatingsystem {
+      case $facts['os']['name'] {
         'RedHat', 'CentOS', 'Scientific', 'OracleLinux', 'OEL': {
           if ( $repopath == $vmwaretools::params::repopath ) or ( $just_prepend_repopath == true ) {
             $baseurl_url = "${reposerver}${repopath}/esx/${tools_version}/${vmwaretools::params::baseurl_string}${vmwaretools::params::majdistrelease}/${repobasearch}/"
@@ -220,7 +220,7 @@ class vmwaretools::repo (
           include '::apt'
           apt::source { 'vmware-tools':
             ensure     => $ensure,
-            comment    => "VMware Tools ${tools_version} - ${vmwaretools::params::baseurl_string} ${::lsbdistcodename}",
+            comment    => "VMware Tools ${tools_version} - ${vmwaretools::params::baseurl_string} ${facts['os']['distro']['codename']}",
             location   => $baseurl_url,
             key_source => $gpgkey,
             #key        => '0xC0B5E0AB66FD4949',

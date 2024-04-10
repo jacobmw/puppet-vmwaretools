@@ -199,26 +199,26 @@ class vmwaretools::params {
     $scsi_timeout = '180'
   }
 
-  if $::operatingsystemmajrelease { # facter 1.7+
-    $majdistrelease = $::operatingsystemmajrelease
-  } elsif $::lsbmajdistrelease {    # requires LSB to already be installed
-    $majdistrelease = $::lsbmajdistrelease
+  if $facts['os']['release']['major'] { # facter 1.7+
+    $majdistrelease = $facts['os']['release']['major']
+  } elsif $facts['os']['distro']['release']['major'] {    # requires LSB to already be installed
+    $majdistrelease = $facts['os']['distro']['release']['major']
   } elsif $::os_maj_version {       # requires stahnma/epel
     $majdistrelease = $::os_maj_version
   } else {
-    $majdistrelease = regsubst($::operatingsystemrelease,'^(\d+)\.(\d+)','\1')
+    $majdistrelease = regsubst($facts['os']['release']['full'],'^(\d+)\.(\d+)','\1')
   }
 
-  case $::osfamily {
+  case $facts['os']['family'] {
     'RedHat': {
-      case $::operatingsystem {
+      case $facts['os']['name'] {
         'RedHat', 'CentOS', 'OEL', 'OracleLinux', 'Scientific': {
           case $majdistrelease {
             '3', '4', '5', '6': {
               $supported = true
             }
             default: {
-              notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+              notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
               $supported = false
             }
           }
@@ -234,28 +234,28 @@ class vmwaretools::params {
           $service_hasstatus_5x = true
         }
         default: {
-          notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+          notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
           $supported = false
         }
       }
-      $repobasearch_4x = $::architecture ? {
+      $repobasearch_4x = $facts['os']['architecture'] ? {
         'i386'  => 'i686',
         'i586'  => 'i686',
-        default => $::architecture,
+        default => $facts['os']['architecture'],
       }
-      $repobasearch_5x = $::architecture ? {
+      $repobasearch_5x = $facts['os']['architecture'] ? {
         'i586'  => 'i386',
         'i686'  => 'i386',
-        default => $::architecture,
+        default => $facts['os']['architecture'],
       }
       $baseurl_string = 'rhel'  # must be lower case
     }
     'Suse': {
-      case $::operatingsystem {
+      case $facts['os']['name'] {
         'SLES', 'SLED': {
           # TODO: tools 3.5 and 4.x use either sles11 or sles11sp1 while tools >=5 use sles11.1
           if ($majdistrelease == '9') or  ($majdistrelease == '11') {
-            $distrelease = $::operatingsystemrelease
+            $distrelease = $facts['os']['release']['full']
           } else {
             $distrelease = $majdistrelease
           }
@@ -264,7 +264,7 @@ class vmwaretools::params {
               $supported = true
             }
             default: {
-              notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+              notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
               $supported = false
             }
           }
@@ -277,31 +277,31 @@ class vmwaretools::params {
           $service_name_5x = 'vmware-tools-services'
           $service_hasstatus_4x = false
           $service_hasstatus_5x = true
-          $repobasearch_4x = $::architecture ? {
+          $repobasearch_4x = $facts['os']['architecture'] ? {
             'i386'  => 'i586',
-            default => $::architecture,
+            default => $facts['os']['architecture'],
           }
-          $repobasearch_5x = $::architecture ? {
+          $repobasearch_5x = $facts['os']['architecture'] ? {
             'i386'  => 'i586',
-            default => $::architecture,
+            default => $facts['os']['architecture'],
           }
           $baseurl_string = 'sles'  # must be lower case
         }
         default: {
-          notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+          notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
           $supported = false
         }
       }
     }
     'Debian': {
-      case $::operatingsystem {
+      case $facts['os']['name'] {
         'Ubuntu': {
-          case $::lsbdistcodename {
+          case $facts['os']['distro']['codename'] {
             'hardy', 'intrepid', 'jaunty', 'karmic', 'lucid', 'maverick', 'natty', 'oneric', 'precise': {
               $supported = true
             }
             default: {
-              notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+              notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
               $supported = false
             }
           }
@@ -315,18 +315,18 @@ class vmwaretools::params {
           $service_name_5x = 'vmware-tools-services'
           $service_hasstatus_4x = false
           $service_hasstatus_5x = true
-          $repobasearch_4x = $::architecture
-          $repobasearch_5x = $::architecture
+          $repobasearch_4x = $facts['os']['architecture']
+          $repobasearch_5x = $facts['os']['architecture']
           $baseurl_string = 'ubuntu'  # must be lower case
         }
         default: {
-          notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+          notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
           $supported = false
         }
       }
     }
     default: {
-      notice "Your operating system ${::operatingsystem} is unsupported and will not have the VMware Tools OSP installed."
+      notice "Your operating system ${facts['os']['name']} is unsupported and will not have the VMware Tools OSP installed."
       $supported = false
     }
   }
